@@ -1,3 +1,38 @@
-ma première ligne de code
-ma seconde ligne de code
-ma troisième ligne de code
+# Script pour le projet Big Data
+# Author : V.LISSASSI
+
+# Source de données : Données Santanders (sur Kaggle) sur les produits à recommander 
+# aux clients 
+# Deux fichiers disponibles : train_ver2.csv et test_ver2.csv
+# Actions : Vu la taille du fichier train_ver2.csv (2.13Go), nous avons partitionné ce 
+# dernier en plusieurs fichiers de 1300000 lignes ...
+
+# Création d'un dossier de travail 
+    
+    if(!file.exists("bigdata_projet")){
+      dir.create("bigdata_projet")
+    }
+
+
+# Exploration de la première partition <<xaa [1299999,48]>>
+
+# Recherche des colonnes contenant des valeurs manquantes
+
+    nbr.na = sum(is.na(xaa))  # nombres de valeurs manquantes 
+    
+    
+    ind = data.frame(Nbr_na=sapply(xaa, function(x) sum((is.na(x))))) # Somme des valeurs manquantes pour chaques colonnes
+    
+   
+    temp = data.frame(Variables=rownames(ind),Nombre_NA=ind[,1])
+    
+    library(ggplot2)
+    
+    # Bar plot
+    bp<- ggplot(temp, aes(x="", y=Nombre_NA, fill=Variables))+
+      geom_bar(width = 1, stat = "identity")
+    bp
+    pie <- bp + coord_polar("y", start=0)
+    pie
+    
+    
