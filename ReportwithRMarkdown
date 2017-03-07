@@ -1,0 +1,71 @@
+---
+title: "Etude PM25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+```
+
+## Analyse de données de pollution par particules fines 
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r,echo=FALSE,warning=FALSE}
+  data <- read.csv("pm25.csv",colClasses=c("numeric","character","factor","numeric","numeric"))
+  # colClasses : pour définir soit même les classes des colonnes
+ 
+  str(data)  ## afficher la classe des composants de data
+  
+  head(data)
+  
+  tail(data)
+  
+  summary(data)   ## afficher le résumé des données 
+  
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE,warning=FALSE}
+ 
+  boxplot(data$pm25,col="blue")   
+    
+  abline (h=12)
+  
+  hist(data$pm25,col="green", breaks = 100) # histogramme
+  rug(data$pm25) 
+  abline(v=12,lwd=4)
+  abline(v=median(data$pm25),col="red",lwd=4)
+  
+  barplot(table(data$region),col="wheat",main="Nombre de département dans chaque région")
+  
+   # Histogrammes multiples par région
+  options = par() # sauvegarde des options initiales
+  par(mfrow=c(2,1)) # 2 lignes, 1 colnne
+  hist(subset(data,region=="east")$pm25)
+  hist(subset(data,region=="west")$pm25)
+  par(options)  # re-initialisation de l'affichage
+  
+  # Visualisation des données en fonction de la latitude (Nord/Sud)
+  with(data,plot(latitude,pm25,col=region))
+  abline(h=12,lwd=2,lty=2)
+  
+  # Visualisation plus fine des données en fonction de la latitude (Nord/Sud)
+  options=par()
+  par(mfrow=c(1,2))
+  with(subset(data,region=="west"),plot(latitude,pm25,main="Ouest"))
+  abline(h=12,lwd=2,lty=2)
+  with(subset(data,region=="east"),plot(latitude,pm25,main="Est"))
+  abline(h=12,lwd=2,lty=2)
+  par(options)
+  
+  
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
