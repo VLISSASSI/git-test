@@ -1,0 +1,81 @@
+
+## TP Analyse exploratoire 
+
+  library(readr)
+
+## Données sur la pollution 
+
+  data <- read.csv("./mesdatas/pm25.csv",colClasses=c("numeric","character","factor","numeric","numeric"))
+  # colClasses : pour définir soit même les classes des colonnes
+ 
+  str(data)  ## afficher la classe des composants de data
+  
+  summary(data)   ## afficher le résumé des données 
+  
+  boxplot(data$pm25,col="blue")   # Boite à moustache
+  
+  hist(data$pm25,col="red", breaks = 100) +  # histogramme
+  rug(data$pm25)  # affichage des densités de la points/histogramme
+  
+  
+  
+  
+  # Comparaison des donnés avec la question posée
+  boxplot(data$pm25,col="blue") +  
+    
+  abline (h=12)
+  
+  hist(data$pm25,col="green", breaks = 100) +  # histogramme
+  rug(data$pm25) 
+  abline(v=12,lwd=4)
+  abline(v=median(data$pm25),col="red",lwd=4)
+  
+  # Analyse des régions
+  barplot(table(data$region),col="wheat",main="Nombre de département dans chaque région")
+  
+  
+  # Histogrammes multiples par région
+  options = par() # sauvegarde des options initiales
+  par(mfrow=c(2,1)) # 2 lignes, 1 colnne
+  hist(subset(data,region=="east")$pm25)
+  hist(subset(data,region=="west")$pm25)
+  par(options)  # re-initialisation de l'affichage
+  
+  # Visualisation des données en fonction de la latitude (Nord/Sud)
+  with(data,plot(latitude,pm25,col=region))
+  abline(h=12,lwd=2,lty=2)
+  
+  # Visualisation plus fine des données en fonction de la latitude (Nord/Sud)
+  options=par()
+  par(mfrow=c(1,2))
+  with(subset(data,region=="west"),plot(latitude,pm25,main="Ouest"))
+  abline(h=12,lwd=2,lty=2)
+  with(subset(data,region=="east"),plot(latitude,pm25,main="Est"))
+  abline(h=12,lwd=2,lty=2)
+  par(options)
+  
+  
+  
+  ## Reprendre l'analyse avec RMarkdown
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
