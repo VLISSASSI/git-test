@@ -1,0 +1,38 @@
+
+
+frenchcourt = readLines("http://www.gutenberg.org/files/50052/50052-h/50052-h.htm")
+frenchcourtpVS = VectorSource(topics)
+corpus = VCorpus(frenchcourtpVS)
+library(tm)
+corpus = tm_map(corpus, content_transformer(tolower))
+corpus = tm_map(corpus, stripWhitespace)
+corpus = tm_map(corpus, removeNumbers)
+corpus = tm_map(corpus, removePunctuation)
+corpus = tm_map(corpus, removeWords, stopwords("english"))
+corpus = tm_map(corpus, removeWords, stopwords("french"))
+
+corpus = tm_map(corpus, removeWords, c("the", "this","part","vol","pdf"))
+
+TDM = TermDocumentMatrix(corpus)
+matrixbretagne = as.matrix(TDM)
+sortedmatrix = sort(rowSums(matrixbretagne),decreasing=TRUE)
+frequence = data.frame(word = names(sortedmatrix),freq=sortedmatrix)
+tete = head(frequence, 10)
+
+barplot(height=tete$freq, names.arg=tete$word, xlab="Mots", ylab="Fréquence", col="#973232", main="Analyse de 'Pictures of the old French court'")
+
+## Racinisation
+library("SnowballC")
+corpus2 = tm_map(corpus,stemDocument)
+
+TDM2 = as.matrix(TermDocumentMatrix(corpus2))
+
+library(wordcloud)
+
+wordcloud(frequence$word, frequence$freq, max.words=100,rot.per=F,colors=c("#973232",
+    "#1E5B5B","#6D8D2F","#287928"))
+
+
+
+
+
