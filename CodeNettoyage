@@ -1,0 +1,109 @@
+
+## Pour créer un dossier 
+
+if(!file.exists("mesdatas")){
+  dir.create("mesdatas")
+}
+
+## Télécharger des données sur un site web 
+
+fileURL = "https://data.baltimorecity.gov/api/views/59fg-ary5/rows.csv?accessType=DOWNLOAD"
+
+fileName = paste("./mesdatas/crimes_baltimore_",format(Sys.time(),"%Y%m%d"),".csv",sep="")
+
+download.file(fileURL, fileName, method = "curl")
+
+data = read.csv(fileName)
+
+
+### Lire un fichier XML
+
+library(XML)
+
+fileName = "./mesdatas/products.xml"
+
+doc = xmlTreeParse(fileName, useInternalNodes = T)
+
+rootNode = xmlRoot(doc)
+
+xmlName(rootNode)
+
+names(rootNode)
+
+rootNode[[1]]
+
+xpathSApply(rootNode,"//cost",xmlValue)
+
+
+## Lire un fichier json
+
+library(jsonlite)
+
+jsonDoc = fromJSON("./mesdatas/movies.json")
+
+names(jsonDoc)
+
+jsonDoc$actors
+
+
+## Scinder les data frames et trier les lignes 
+
+set.seed(12345)
+
+x = data.frame("var1"= sample(1:5), "var2" = sample(6:10), "var3" = sample(11:15))
+
+x$var2[c(1,3)] = NA
+
+x
+
+library(plyr)
+
+x$var4 = rnorm(5)
+
+y=cbind(x,rnorm(5))
+
+
+
+dt=read_csv("C:/Users/Administrateur/Desktop/Big data ne pas effacer/Projets/Santander satisfaction clients/train_ver2.csv",nrows=11)
+ 
+## TP Web scraping
+
+library(RCurl)
+
+library(XML)
+
+fileURL
+data = getURL("http://r-exercises.com/start-here-to-learn-r.html", write = basicTextGatherer())
+
+doc = htmlTreeParse("http://r-exercises.com/start-here-to-learn-r",useInternalNodes = T)
+
+# Sélectionner les topics 
+
+topics = xpathSApply(doc,"//a",xmlValue)
+
+# Supprimer des chaines de caractères vide (par ex " ")
+
+topics = topics[topics !=""]
+
+# Changer en miniscule
+
+topics = tolower(topics)
+
+topics
+
+# Chercher les topics du début jusqu'a la fin 
+
+topics[which(topics=="vectors and sequences"):which(topics=="descriptive analytics, part 5: data visualisation (spatial data)")]
+
+topics[grep("vectors and sequences",topics) : grep("descriptive analytics, part 5: data visualisation \\(spatial data\\)",topics)]
+
+#Création du nuage de mots
+
+library(tm)
+
+library(wordcloud)
+
+wordcloud(topics,random.order=F, random.color=F)  # nuage de mots
+
+
+
