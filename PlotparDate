@@ -1,0 +1,54 @@
+train = dt[,-1]
+
+splg = sample(1:nrow(train),500,replace = F)  # tirage aléatoire sans remise de 500 ind pour tester
+
+data = train[splg,]
+
+
+tt = cbind(as.factor(c(data[1:100,1])),1:100)
+
+plot(tt[,2]~tt[,1], type="b")
+
+plot(tt[,2] ~ as.factor(tt[,1]))
+
+Sys.setlocale("LC_TIME", "French")
+
+par(las=1) # pour que les étiquettes des axes soient horizontales
+
+
+tt1=as.Date(tt[,1], format="%d/%m/%Y")
+class(tt1)
+
+## [1] "Date"
+
+plot(as.factor(tt1)~tt[,2], type="b")
+
+
+
+
+nbr = matrix(NaN,ncol=length(unique(train[,1])),nrow=1)
+
+colnames(nbr)=as.factor(unique(train[,1]))
+
+lts = unique(tt[,1])
+
+    for (i in 1:length(lts))
+    {
+      
+      if (colnames(nbr)[i]==lts[i])
+      
+      nbr[,i]=length(grep(lts[i],tt[,1]))
+    }
+
+     
+m = matrix(abs(rnorm(6)),3,2)
+rownames(m) = as.Date(c('2011-01-01','2011-01-03','2011-01-10'))
+barplot(t(m),beside=T,col=c('red','blue'),las=2)
+
+
+test = matrix(tt[,2],ncol=1)
+
+rownames(test)=as.factor(c(tt[,1]))
+
+barplot((nbr),beside=T,las=2,col=c('red','blue'))
+
