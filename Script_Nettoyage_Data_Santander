@@ -1,0 +1,97 @@
+
+## Script pour nettoyer les données du challenge Santanders : Produit recommendation
+## Author : Virgil LISSASSI
+
+# Imporation des données 
+
+  rm(list=ls())  # S'assurer que le workspace est vide
+  
+  original.data = data   # Données à nettoyer
+  
+# Données relatives aux produits bancaires 
+  
+  list.produits=c(
+    'ind_ahor_fin_ult1', 'ind_aval_fin_ult1', 'ind_cco_fin_ult1',
+    'ind_cder_fin_ult1', 'ind_cno_fin_ult1', 'ind_ctju_fin_ult1',
+    'ind_ctma_fin_ult1', 'ind_ctop_fin_ult1', 'ind_ctpp_fin_ult1',
+    'ind_deco_fin_ult1', 'ind_deme_fin_ult1', 'ind_dela_fin_ult1',
+    'ind_ecue_fin_ult1', 'ind_fond_fin_ult1', 'ind_hip_fin_ult1',
+    'ind_plan_fin_ult1', 'ind_pres_fin_ult1', 'ind_reca_fin_ult1',
+    'ind_tjcr_fin_ult1', 'ind_valo_fin_ult1', 'ind_viv_fin_ult1',
+    'ind_nomina_ult1', 'ind_nom_pens_ult1', 'ind_recibo_ult1')
+  
+  original.data.produits = data[,list.produits]
+  
+# Remplacement des NA par 0
+  
+  sum(is.na(original.data.produits))  # on vérifie d'abord si il y a des NA
+  
+  original.data.produits[is.na(original.data.produits)] <- 0   # on remplace les NA par 0
+  
+  sum(is.na(original.data.produits))  # on vérifie sur si il n'y a plus de NA
+  
+# Données relatives aux autres colonnes hors produits bancaires
+  
+  original.data.other.var = original.data[,1:24]
+  
+# Sélection des colonnes à supprimer
+  
+  delete.col = c("ind_empleado","ult_fec_cli_1t","conyuemp","cod_prov","tipodom"
+               ,"pais_residencia","fecha_alta","indfall")
+
+  original.data.other.var2 = original.data.other.var[!(names(original.data.other.var) %in% delete.col)] # on supprime les colonnes citées ci-dessus
+  
+# Suppression de toutes les lignes contenant une valeur ou plusieurs valeurs manquantes
+  
+  temp = na.omit(cbind(original.data.other.var2,original.data.produits))
+  
+# Déclaration des variables catégorielles
+  
+  clean.data = temp
+  
+  clean.data$sexo = as.factor(temp$sexo)
+  
+  clean.data$indrel_1mes =as.factor(temp$indrel_1mes)
+  
+  clean.data$tiprel_1mes =as.factor(temp$tiprel_1mes)
+  
+  clean.data$indresi =as.factor(temp$indresi)
+  
+  clean.data$indext =as.factor(temp$indext)
+  
+  clean.data$canal_entrada =as.factor(temp$canal_entrada)
+  
+  clean.data$segmento =as.factor(temp$segmento)
+  
+  clean.data$nomprov =as.factor(temp$nomprov)
+  
+  clean.data[which(temp[,"indrel"]==99),"indrel"]=0  
+  
+  
+# Vérification 
+  
+  dim(clean.data)  # nombre de lignes et de colonnes 
+  
+  head(clean.data) # les 6 premières lignes des données
+  
+  str(clean.data) # les types de variables
+  
+  summary(clean.data)  # détails des données 
+  
+# Vider le workspace et ne laisser que les données nettoyées
+  
+  workspace = ls()
+  
+  rm(list=workspace[-which(workspace=="clean.data")])
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
