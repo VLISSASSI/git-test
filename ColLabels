@@ -1,0 +1,8 @@
+ col.labels = function (n)
+      {
+        col.labs = colors()
+        choix = sample (1:length(col.labs),n,replace = F)
+        res = col.labs[choix]
+        return (res)
+  
+      }
