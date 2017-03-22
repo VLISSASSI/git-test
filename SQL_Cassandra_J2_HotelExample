@@ -1,0 +1,190 @@
+-- Export of keyspace hotel
+CREATE KEYSPACE hotel
+WITH durable_writes = true
+AND replication = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+
+CREATE TYPE hotel.adress (
+	street text,
+	city text,
+	state_or_province text,
+	postal_code text,
+	country text
+);
+
+CREATE TABLE hotel.available_rooms_by_hotel_date (
+	hotel_id text,
+	"date " date,
+	room_number smallint,
+	is_available boolean,
+	PRIMARY KEY (hotel_id, "date ", room_number)
+) WITH CLUSTERING ORDER BY ( "date " ASC, room_number ASC )
+AND bloom_filter_fp_chance = 0.01
+AND comment = 'Q4. find available rooms by hotel and date'
+AND crc_check_chance = 1.0
+AND dclocal_read_repair_chance = 0.1
+AND default_time_to_live = 0
+AND gc_grace_seconds = 864000
+AND max_index_interval = 2048
+AND memtable_flush_period_in_ms = 0
+AND min_index_interval = 128
+AND read_repair_chance = 0.0
+AND speculative_retry = '99.0PERCENTILE'
+AND caching = {
+	'keys' : 'ALL',
+	'rows_per_partition' : 'NONE'
+}
+AND compression = {
+	'chunk_length_in_kb' : 64,
+	'class' : 'LZ4Compressor',
+	'enabled' : true
+}
+AND compaction = {
+	'class' : 'SizeTieredCompactionStrategy',
+	'max_threshold' : 32,
+	'min_threshold' : 4
+};
+
+CREATE TABLE hotel.hotels (
+	id text,
+	"adress frozen<adress>" text,
+	name text,
+	phone text,
+	poi SET<text>,
+	PRIMARY KEY (id)
+) WITH bloom_filter_fp_chance = 0.01
+AND comment = 'Q2. find information about a hotel'
+AND crc_check_chance = 1.0
+AND dclocal_read_repair_chance = 0.1
+AND default_time_to_live = 0
+AND gc_grace_seconds = 864000
+AND max_index_interval = 2048
+AND memtable_flush_period_in_ms = 0
+AND min_index_interval = 128
+AND read_repair_chance = 0.0
+AND speculative_retry = '99.0PERCENTILE'
+AND caching = {
+	'keys' : 'ALL',
+	'rows_per_partition' : 'NONE'
+}
+AND compression = {
+	'chunk_length_in_kb' : 64,
+	'class' : 'LZ4Compressor',
+	'enabled' : true
+}
+AND compaction = {
+	'class' : 'SizeTieredCompactionStrategy',
+	'max_threshold' : 32,
+	'min_threshold' : 4
+};
+
+CREATE TABLE hotel.hotel_by_poi (
+	poi_name uuid,
+	hotel_id text,
+	"adresse frozen<adresse>" text,
+	name text,
+	phone text,
+	state_or_province text,
+	PRIMARY KEY (poi_name, hotel_id)
+) WITH CLUSTERING ORDER BY ( hotel_id ASC )
+AND bloom_filter_fp_chance = 0.01
+AND comment = 'Q1. Find hotels near given point on interest poi'
+AND crc_check_chance = 1.0
+AND dclocal_read_repair_chance = 0.1
+AND default_time_to_live = 0
+AND gc_grace_seconds = 864000
+AND max_index_interval = 2048
+AND memtable_flush_period_in_ms = 0
+AND min_index_interval = 128
+AND read_repair_chance = 0.0
+AND speculative_retry = '99.0PERCENTILE'
+AND caching = {
+	'keys' : 'ALL',
+	'rows_per_partition' : 'NONE'
+}
+AND compression = {
+	'chunk_length_in_kb' : 64,
+	'class' : 'LZ4Compressor',
+	'enabled' : true
+}
+AND compaction = {
+	'class' : 'SizeTieredCompactionStrategy',
+	'max_threshold' : 32,
+	'min_threshold' : 4
+};
+
+CREATE TABLE hotel.pois_by_hotels (
+	hotel_id text,
+	poi_name text,
+	description text,
+	PRIMARY KEY (hotel_id, poi_name)
+) WITH CLUSTERING ORDER BY ( poi_name ASC )
+AND bloom_filter_fp_chance = 0.01
+AND comment = ''
+AND crc_check_chance = 1.0
+AND dclocal_read_repair_chance = 0.1
+AND default_time_to_live = 0
+AND gc_grace_seconds = 864000
+AND max_index_interval = 2048
+AND memtable_flush_period_in_ms = 0
+AND min_index_interval = 128
+AND read_repair_chance = 0.0
+AND speculative_retry = '99.0PERCENTILE'
+AND caching = {
+	'keys' : 'ALL',
+	'rows_per_partition' : 'NONE'
+}
+AND compression = {
+	'chunk_length_in_kb' : 64,
+	'class' : 'LZ4Compressor',
+	'enabled' : true
+}
+AND compaction = {
+	'class' : 'SizeTieredCompactionStrategy',
+	'max_threshold' : 32,
+	'min_threshold' : 4
+};
+
+CREATE TABLE hotel.amenities_by_room (
+	hotel_id text,
+	amenity_name text,
+	description text,
+	room_number smallint,
+	PRIMARY KEY (hotel_id)
+) WITH bloom_filter_fp_chance = 0.01
+AND comment = 'Q5. find amenities for a room'
+AND crc_check_chance = 1.0
+AND dclocal_read_repair_chance = 0.1
+AND default_time_to_live = 0
+AND gc_grace_seconds = 864000
+AND max_index_interval = 2048
+AND memtable_flush_period_in_ms = 0
+AND min_index_interval = 128
+AND read_repair_chance = 0.0
+AND speculative_retry = '99.0PERCENTILE'
+AND caching = {
+	'keys' : 'ALL',
+	'rows_per_partition' : 'NONE'
+}
+AND compression = {
+	'chunk_length_in_kb' : 64,
+	'class' : 'LZ4Compressor',
+	'crc_check_chance' : 1.0,
+	'enabled' : true
+}
+AND compaction = {
+	'bucket_high' : 1.5,
+	'bucket_low' : 0.5,
+	'class' : 'SizeTieredCompactionStrategy',
+	'enabled' : true,
+	'max_threshold' : 32,
+	'min_sstable_size' : 50,
+	'min_threshold' : 4,
+	'tombstone_compaction_interval' : 86400,
+	'tombstone_threshold' : 0.2,
+	'unchecked_tombstone_compaction' : false
+};
+
+
