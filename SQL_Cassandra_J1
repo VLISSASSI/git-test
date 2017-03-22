@@ -1,0 +1,63 @@
+select * from mytest.mytable;
+SELECT first_name, last_name, writetime (last_name) FROM mytest.mytable;
+
+ALTER TABLE mytest.mytable ADD age text;
+
+
+select * from mytest.mytable;
+SELECT first_name, last_name, age, ttl (last_name)  FROM mytest.mytable;
+
+INSERT INTO mytest.mytable (first_name,last_name,title,age) VALUES ('Virgil','LISSASSI','Mr','29');
+
+update mytest.mytable using ttl 3600
+set last_name =''
+where first_name='LISSASSI';
+
+select ttl(last_name),
+last_name, first_name from mytest.mytable where first_name ='LISSASSI' ;
+
+
+
+
+
+
+select * from mytest.mytable;
+SELECT first_name, last_name, writetime (first_name) FROM mytest.mytable;
+
+create type adress (
+	street text,
+	city text,
+	state text,
+	zip_code int,
+);
+
+alter table mytest.mytable ADD adress map<text,frozen<adress>>;
+
+
+update mytest.mytable set 
+adress = adress +
+{'home2':('118 rue de surville','Lyon','France',69008)} 
+where first_name ='Rodriguez';
+
+update mytest.mytable set 
+adress = adress +
+{'pro2' :('167 rue vercingétorix','Paris','France',75014)}
+where first_name ='Rodriguez';
+
+select adress from mytest.mytable where first_name='Rodriguez';
+
+alter table mytest.mytable ADD mail list<text>;
+
+update mytest.mytable set 
+mail = mail +
+['virgil.lissassi@gmail.com','virgilos42@hotmail.com']
+where first_name='LISSASSI';
+
+
+
+select mail from mytest.mytable where last_name='Virgil';
+
+create index on mytest.mytable (last_name);
+
+select adress from mytest.mytable where last_name='Virgil';
+
