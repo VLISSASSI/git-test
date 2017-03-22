@@ -1,0 +1,15 @@
+## Fonction pour convertir une variable factorielle en numérique
+## Author : Virgil LISSASSI
+
+fvar.into.nvar = function(var.vec,var.name)
+{
+  list = unique(var.vec)
+  mat = matrix(NaN,ncol=length(list),nrow=length(var.vec),byrow=T)
+      for (i in 1:length(list))
+      {
+        mat[which(var.vec==list[i]),i] <- 1
+      }
+  colnames(mat)<- paste(var.name,"_",1:length(list),sep="")
+  mat[is.na(mat)] <- 0  
+  return (mat)
+}
