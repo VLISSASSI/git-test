@@ -1,0 +1,44 @@
+#######Commande de base de HDFS
+
+hdfs fs(dfs) -ls  : affiche le contenu de HDFS.
+
+hdfs fs(dfs) -ls/  : affiche le contenu de la racine HDFS.
+
+hdfs fs(dfs) -ls/user  : affiche tous le contenu de user.
+
+hdfs dfs -ls -R -h /var : affiche les fichiers des sous-dossiers, avec une taille écrite en unité humaines.
+
+hdfs dfs -mkdir fichiers : crée un dossier dans votre espace HDFS, c’est à dire /user/votre_login/fichiers. Notez que la taille d’un dossier sera toujours 0.
+
+hdfs dfs -put bonjour.txt : copie le fichier bonjour.txt dans HDFS (utilisez hdfs dfs -ls -R pour vérifier).
+
+hdfs dfs -cat bonjour.txt : affiche le contenu de bonjour.txt (on peut rajouter "more" pour en voir plus ou "hdfs dfs -cat bonjour.txt | more".
+
+hdfs dfs -tail bonjour.txt : affiche le dernier Ko du fichier.
+
+hdfs dfs -rm bonjour.txt : supprime ce fichier de HDFS.
+
+-copyFromLocal bonjour.txt :remettre à nouveau ce fichier par hdfs dfs  (vérifier avec hdfs dfs -ls). Cette commande est similaire à hdfs dfs -put.
+
+hdfs dfs -chmod go+w bonjour.txt :vérifie les propriétaire, groupe et droits.
+
+hdfs dfs -chmod go-r bonjour.txt :vérifier les droits.
+
+hdfs dfs -mv bonjour.txt fichiers/bonjour.txt (vérifier avec hdfs dfs -ls -R)
+
+hdfs dfs -get fichiers/bonjour.txt demat.txt : transfère le fichier de HDFS vers votre compte Linux en lui changeant son nom. Attention à ne pas le 
+faire avec de vraies méga-données !
+
+hdfs dfs -cp fichiers/bonjour.txt fichiers/salut.txt (vérifier).
+
+hdfs dfs -count -h /user/votre_login : affiche le nombre de sous-dossiers, fichiers et octets occupés.
+
+hdfs dfs -rm fichiers/bonjour.txt (vérifier avec hdfs dfs -ls fichiers).
+
+hdfs dfs -rmr fichiers (vérifier avec hdfs dfs -ls).
+
+wget $URL pour charger des données depuis un lien URL
+
+wget -O - $URL | hdfs dfs -put - arbres.csv
+
+hdfs fsck /user/votre_login -files -blocks
