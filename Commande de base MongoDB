@@ -1,0 +1,32 @@
+1- 
+db.customers.insert({first_name:"Troy"}) # Faire un insert
+2- 
+show customers # Voir les collections
+3- 
+db.customers.find()  # Pour voir la contenance de customers (les ID)
+
+4- 
+db.customers.insert
+({	first_name:"Troy",
+			last_name:"Makons",
+			gender:"male",
+			age:33,
+			address:{
+					street:"432 Essex st",
+					city:"MA"
+				},
+			memberships:["mem1", "mem2"],
+			balance:125.32
+})
+
+5-
+db.customers.find().pretty()  # Pour voir la contenance de customers (les ID) en mode structuré
+
+6-
+db.customers.insert([{first_name:"Steven",last_name:"Smith"},{first_name:"Joan",last_name:"Johnson",gender:"male"}])
+
+7-
+db.customers.remove({first_name:"Steven"},{justOne:true}); # pour supprimer le premier de document qui s'appelle
+Steven ou sinon sans {justOne:true} tout les Steven seront supprimés
+ 8-
+db.customers.insert({_id:"Stephane",country:"FR"})
