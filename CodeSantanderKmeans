@@ -1,0 +1,453 @@
+
+### Script pour la classification des données Santanders
+##  Author : V.LISSASSI
+
+# Vider le workspace
+rm(list=ls())
+
+# Importation des données
+
+library(readr)
+
+Data_Santander_clean <- read_delim("~/bigdata_projet/data/Data_Santander_clean.csv", 
+                                   " ", escape_double = FALSE, trim_ws = TRUE)
+
+# Initialisation du générateur de nombre aléatoire 
+
+set.seed(89785643)
+
+# Choix d'un échantillon de n = 500000 ligne 
+
+spl = sample(1:nrow(Data_Santander_clean),200000,replace=F)
+
+# On enlève les variables "fecha_dato", "ncodpers", "indrel_1mes" et "indext" car pas pertinent
+final_data = Data_Santander_clean[spl,-c(1,2,8,11)] 
+
+# Préparation des données
+
+var.names = names(final_data)   # nom des toutes les colonnes
+
+produits.names = names(final_data[,16:36]) # nom des produits bancaires
+
+social_var.name = names(final_data[,1:12])  # nom des autres variables (Ex : age, sexe, ...)
+
+# Déclaration et mise à jour des types de variables
+
+temp_data = final_data[,social_var.name]
+
+temp_data$sexo = as.factor(final_data$sexo)
+
+temp_data$age = as.numeric(final_data$age)
+
+temp_data$ind_nuevo = as.numeric(final_data$ind_nuevo)
+
+temp_data$antiguedad = as.numeric(final_data$antiguedad)
+
+temp_data$indrel = as.numeric(final_data$indrel)
+
+temp_data$tiprel_1mes = as.factor(final_data$tiprel_1mes)
+
+temp_data$indresi = as.factor(final_data$indresi)
+
+temp_data$canal_entrada = as.factor(final_data$canal_entrada)
+
+temp_data$nomprov = as.factor(final_data$nomprov)
+
+temp_data$ind_actividad_cliente = as.numeric(final_data$ind_actividad_cliente)
+
+temp_data$renta = as.numeric(final_data$renta)
+
+temp_data$segmento = as.factor(final_data$segmento)
+
+# Conversion des variables factorielles en numériques
+
+facto.var = list("sexo","tiprel_1mes","indresi","canal_entrada","nomprov","segmento")
+
+mod_data =temp_data
+
+# sexo
+new.code.sexo = matrix(NaN, ncol=1,nrow=nrow(temp_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$sexo)))
+{
+  new.code.sexo[which(mod_data$sexo==unique(mod_data$sexo)[i])]=i
+}
+
+#tiprel_1mes
+new.code.tiprel_1mes = matrix(NaN, ncol=1,nrow=nrow(temp_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$tiprel_1mes)))
+{
+  new.code.tiprel_1mes[which(mod_data$tiprel_1mes==unique(mod_data$tiprel_1mes)[i])]=i
+}
+
+#indresi
+new.code.indresi = matrix(NaN, ncol=1,nrow=nrow(temp_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$indresi)))
+{
+  new.code.indresi[which(mod_data$indresi==unique(mod_data$indresi)[i])]=i
+}
+
+# canal_entrada
+new.code.canal_entrada = matrix(NaN, ncol=1,nrow=nrow(mod_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$canal_entrada)))
+{
+  new.code.canal_entrada[which(mod_data$canal_entrada==unique(mod_data$canal_entrada)[i])]=i
+}
+
+#nomprov
+new.code.nomprov = matrix(NaN, ncol=1,nrow=nrow(mod_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$nomprov)))
+{
+  new.code.nomprov[which(mod_data$nomprov==unique(mod_data$nomprov)[i])]=i
+}
+
+#segmento
+new.code.segmento = matrix(NaN, ncol=1,nrow=nrow(mod_data),byrow =T)
+
+for (i in 1:length(unique(mod_data$segmento)))
+{
+  new.code.segmento[which(mod_data$segmento==unique(mod_data$segmento)[i])]=i
+}
+
+# Insertion des variables converties dans les données d'analyse
+
+mod_data$sexo = new.code.sexo
+
+mod_data$indresi = new.code.indresi
+
+mod_data$nomprov = new.code.nomprov
+
+mod_data$segmento = new.code.segmento
+
+mod_data$canal_entrada = new.code.canal_entrada
+
+mod_data$tiprel_1mes = new.code.tiprel_1mes
+
+head(mod_data)  # vérification
+
+
+# Analyse descriptive
+# Boite à moustâche
+x11()
+
+boxplot(mod_data,main="Boite à moustâche",col="blue",xlab="Variables")
+
+# Centrage réduction et boxplot
+
+mod_data.cr = scale(mod_data,center=T,scale=T)  # centrage et réduction des données
+
+x11()
+
+boxplot(mod_data.cr,main="Boite à moustâche après centrage réduction",col="blue",xlab="Variables")
+
+
+# Une ACP pour voir
+
+library(FactoMineR)
+
+res.pca = PCA(mod_data.cr,scale.unit = F,graph=F)
+
+# Graphe indiquant l'évolution de la variance expliquée en fonction du nombre de composante
+x11()
+barplot(res.pca$eig$`cumulative percentage of variance`,
+        main="Evolution de la Variance expliquée",xlab="Nombre de composantes",
+        ylab="Variance cumulée (%) ",
+        names.arg=1:12,col="blue")
+# Projection des variables sur les composantes (1,2,3 et 4) de l'ACP
+#composantes (1,2)
+x11()
+
+plot(res.pca, choix='var', axes=c(1,2))
+
+#composantes (2,3)
+x11()
+
+plot(res.pca, choix='var', axes=c(2,3))
+
+#composantes (3,4)
+x11()
+
+plot(res.pca, choix='var', axes=c(3,4))
+
+# Projection des individus sur les composantes (1,2,3 et 4) de l'ACP
+#composantes (1,2)
+x11()
+
+plot(res.pca, choix='ind', axes=c(1,2))
+
+abline(h=-3,col="red")  # définition d'une ligne rouge sur Dim2 afin d'identifier les individus pas ordinaires
+
+out_1_2 = which(res.pca$ind$coord[,"Dim.2"]<c(-3)) # individus non ordinaires sur Dim2
+
+#composantes (2,3)
+x11()
+
+plot(res.pca, choix='ind', axes=c(2,3))
+
+abline(h=-20,col="red") 
+
+out_2_3 = which(res.pca$ind$coord[,"Dim.3"]<c(-20))
+
+#composantes (3,4)
+x11()
+
+plot(res.pca, choix='ind', axes=c(3,4))
+
+abline(h=40,col="red") 
+
+out_3_4 = which(res.pca$ind$coord[,"Dim.4"]>c(40))
+
+# Identification des individus communs aux dimensions qui sont non ordinaires
+
+out_ind = unique(out_1_2,out_2_3,out_3_4)
+
+res.pca_2 = PCA(mod_data.cr[-out_ind,],scale.unit = F,graph=F)
+x11()
+barplot(res.pca$eig$`cumulative percentage of variance`,
+        main="Evolution de la Variance expliquée ACP2",xlab="Nombre de composantes",
+        ylab="Variance cumulée (%) ",
+        names.arg=1:12,col="blue")
+
+#composantes (1,2)
+x11()
+
+plot(res.pca_2, choix='ind', axes=c(1,2))
+
+#composantes (2,3)
+x11()
+
+plot(res.pca_2, choix='ind', axes=c(2,3))
+
+#composantes (3,4)
+x11()
+
+plot(res.pca_2, choix='ind', axes=c(3,4))
+
+# Données d'apprentissage 
+train_data = temp_data[-out_ind,]  # les données d'origines
+
+train_data.cr = mod_data.cr[-out_ind,] # les données d'origines après centrage réduction
+
+####################################################################################################
+# Recherche des groupes avec kmeans
+# On débute par une boucle qui va faire plusieurs modèles avec des nombres de classee de 2 à 40
+
+inertie.expl <- rep(0,times=40)
+for (k in 2:40){
+  res.kmean <- kmeans(train_data.cr,centers=k)  
+  inertie.expl[k] <- (res.kmean$betweenss/res.kmean$totss)*100
+}
+
+# On regarde l'évolution de la variance expliquée par nombre de classe
+x11()
+
+plot(1:40,inertie.expl,type="b",
+     main="Evolution du pourcentage d'inertie expliquée ",
+     xlab="Nombre de groupes",
+     ylab="% Inertie expliquée",
+     col="red",
+     pch=10)
+
+grid()
+
+
+# Nombre de classe optimale = 30 avec environ 80 % de la variance expliquée
+
+train.groupe.kmeans = kmeans(train_data.cr,center=30)
+
+# Nombre d'individus par groupe
+
+print(table(train.groupe.kmeans$cluster))
+
+# Rassemblement des individus par groupe
+
+train_ind.by.groupe =as.data.frame(train.groupe.kmeans$cluster)
+
+train_ind.by.groupe$ind.num = rownames(train_ind.by.groupe)
+
+
+train_ind.groupe = rep(list(NULL),30)
+
+  for(i in 1:30)
+  {
+    
+    train_ind.groupe[[i]]=as.numeric(train_ind.by.groupe[which(train_ind.by.groupe[,1]==i),"ind.num"])
+  }
+
+
+# Les produits consommés par groupe
+tous_produits = names(Data_Santander_clean[,17:ncol(Data_Santander_clean)])
+
+produits.cons.by.groupe  = rep(list(NULL),30)
+
+for (i in 1:30)
+{
+  temp = Data_Santander_clean[train_ind.groupe[[i]],tous_produits]
+  temp_sum_produits = colSums(temp)
+  produits.cons.by.groupe[[i]] = names(temp[,which(temp_sum_produits!=0)])
+  
+}
+
+
+#########################################################################################
+
+# Application du modèle sur les données test
+# Chargement des données test 
+
+library(readr)
+
+Test_Data_Santander_clean <- read_delim("~/bigdata_projet/data/Test_Data_Santander_clean.csv", 
+                                        +     " ", escape_double = FALSE, trim_ws = TRUE)
+
+# Déclaration et mise à jour des variables
+
+# sexo
+new.code.sexo.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$sexo)))
+{
+  new.code.sexo.test[which(Test_Data_Santander_clean$sexo==unique(temp_data$sexo)[i])]=i
+}
+
+#tiprel_1mes
+new.code.tiprel_1mes.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$tiprel_1mes)))
+{
+  new.code.tiprel_1mes.test[which(Test_Data_Santander_clean$tiprel_1mes==unique(temp_data$tiprel_1mes)[i])]=i
+}
+
+#indresi
+new.code.indresi.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$indresi)))
+{
+  new.code.indresi.test[which(Test_Data_Santander_clean$indresi==unique(temp_data$indresi)[i])]=i
+}
+
+# canal_entrada
+new.code.canal_entrada.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$canal_entrada)))
+{
+  new.code.canal_entrada.test[which(Test_Data_Santander_clean$canal_entrada==unique(temp_data$canal_entrada)[i])]=i
+}
+
+# nomprov
+new.code.nomprov.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$nomprov)))
+{
+  new.code.nomprov.test[which(Test_Data_Santander_clean$nomprov==unique(temp_data$nomprov)[i])]=i
+}
+
+#segmento
+new.code.segmento.test = matrix(NaN, ncol=1,nrow=nrow(Test_Data_Santander_clean),byrow =T)
+
+for (i in 1:length(unique(temp_data$segmento)))
+{
+  new.code.segmento.test[which(Test_Data_Santander_clean$segmento==unique(temp_data$segmento)[i])]=i
+}
+
+test_temp_data = Test_Data_Santander_clean
+
+test_temp_data$sexo = as.factor(Test_Data_Santander_clean$sexo)
+
+test_temp_data$age = as.numeric(Test_Data_Santander_clean$age)
+
+test_temp_data$ind_nuevo = as.numeric(Test_Data_Santander_clean$ind_nuevo)
+
+test_temp_data$antiguedad = as.numeric(Test_Data_Santander_clean$antiguedad)
+
+test_temp_data$indrel = as.numeric(Test_Data_Santander_clean$indrel)
+
+test_temp_data$tiprel_1mes = as.factor(Test_Data_Santander_clean$tiprel_1mes)
+
+test_temp_data$indresi = as.factor(Test_Data_Santander_clean$indresi)
+
+test_temp_data$canal_entrada = as.factor(Test_Data_Santander_clean$canal_entrada)
+
+test_temp_data$nomprov = as.factor(Test_Data_Santander_clean$nomprov)
+
+test_temp_data$ind_actividad_cliente = as.numeric(Test_Data_Santander_clean$ind_actividad_cliente)
+
+test_temp_data$renta = as.numeric(Test_Data_Santander_clean$renta)
+
+test_temp_data$segmento = as.factor(Test_Data_Santander_clean$segmento)
+
+
+test_temp_data$sexo = new.code.sexo.test
+
+test_temp_data$indresi = new.code.indresi.test
+
+test_temp_data$nomprov = new.code.nomprov.test
+
+test_temp_data$segmento = new.code.segmento.test
+
+test_temp_data$canal_entrada = new.code.canal_entrada.test
+
+test_temp_data$tiprel_1mes = new.code.tiprel_1mes.test
+
+head(test_temp_data)
+
+sum(is.na(test_temp_data))
+
+test_mod_data = na.omit(test_temp_data)
+
+
+# Initialisation du générateur de nombre aléatoire 
+set.seed(89785643)
+
+# Choix d'un échantillon de n = 40000 ligne 
+spl_test = sample(1:nrow(test_mod_data),40000,replace=F)
+final_test_data = test_mod_data[spl_test,]
+sum(is.na(final_test_data))
+
+
+library(FactoMineR)
+final_test_data.cr = scale(final_test_data,center=T,scale=T)
+sum(is.na(final_test_data.cr))
+
+res.pca.test = PCA(final_test_data.cr,scale.unit = F,graph=F)
+x11()
+barplot(res.pca.test$eig$`cumulative percentage of variance`,
+        main="Evolution de la Variance expliquée",xlab="Nombre de composantes",
+        ylab="Variance cumulée (%) ",
+        names.arg=1:12,col="blue")
+x11()
+plot(res.pca.test, choix='var', axes=c(1,2))
+x11()
+plot(res.pca, choix='var', axes=c(2,3))
+x11()
+plot(res.pca, choix='var', axes=c(3,4))
+
+## Prédiction des données test
+library(clue)
+groupe.kmeans_test = cl_predict(train.groupe.kmeans,final_test_data.cr,type = c("class_ids", "memberships"))
+
+table(groupe.kmeans_test)
+
+groupe.client_test = rep(list(NULL),30)
+
+for(i in 1:30)
+{
+  
+  groupe.client_test[[i]]=as.numeric(which(groupe.kmeans_test ==i))
+}
+
+
+# groupe1_test = final_test_data[groupe.client_test[[1]],]
+# 
+# groupe1 = mod_data[groupe.client[[1]],]
+# 
+# # Rassemblement des individus par groupe
+# ind.by.groupe.test =as.data.frame(groupe.kmeans$cluster)
+# ind.by.groupe$ind.num = rownames(ind.by.groupe)
+# 
+
+
+
